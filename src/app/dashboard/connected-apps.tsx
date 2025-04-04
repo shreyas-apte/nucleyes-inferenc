@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { sentenceCase } from "change-case";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { Button, Checkbox, Divider, Input } from "@nextui-org/react";
+import { Button, Checkbox, Divider, Input } from "@heroui/react";
 
 import { allAppsInfo, AppInfo } from "../constants";
 import ContainerTile from "../components/container-tile";

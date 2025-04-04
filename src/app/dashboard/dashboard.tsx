@@ -10,7 +10,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { useSession } from "next-auth/react";
 import React, { HTMLAttributes, useRef, useState } from "react";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";

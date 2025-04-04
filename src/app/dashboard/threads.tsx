@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Linkify from "linkify-react";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { Accordion, AccordionItem, Divider } from "@nextui-org/react";
+import { Accordion, AccordionItem, Divider } from "@heroui/react";
 
 import LeftDrawer from "../components/left-drawer";
 

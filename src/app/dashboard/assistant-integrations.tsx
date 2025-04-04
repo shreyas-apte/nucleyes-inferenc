@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { sentenceCase } from "change-case";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 
 import CheckAltIcon from "../assets/icons/check-alt.svg";

@@ -2,7 +2,7 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { NextUIProvider } from "@nextui-org/react";
+import { HeroUIProvider } from "@heroui/react";
 import { Provider as JotaiProvider } from "jotai";
 
 export function Providers({
@@ -14,9 +14,9 @@ export function Providers({
   return (
     <SessionProvider {...rest}>
       <JotaiProvider>
-        <NextUIProvider>
+        <HeroUIProvider>
           <main className="dark text-foreground bg-background">{children}</main>
-        </NextUIProvider>
+        </HeroUIProvider>
       </JotaiProvider>
     </SessionProvider>
   );

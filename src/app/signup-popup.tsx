@@ -7,7 +7,7 @@ import {
   ModalBody,
   Button,
   Checkbox,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { z } from "zod";
 import Image from "next/image";
 import { signIn } from "next-auth/react";

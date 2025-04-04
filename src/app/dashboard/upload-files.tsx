@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Button, Divider, Tooltip } from "@nextui-org/react";
+import { Button, Divider, Tooltip } from "@heroui/react";
 import { FileRejection, useDropzone } from "react-dropzone";
 import { XCircleIcon } from "@heroicons/react/20/solid";
 

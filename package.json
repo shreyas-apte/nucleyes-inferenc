@@ -11,7 +11,7 @@
   "dependencies": {
     "@heroicons/react": "^2.1.1",
     "@hookform/resolvers": "^3.3.4",
-    "@nextui-org/react": "^2.2.9",
+    "@heroui/react": "2.7.5",
     "amazon-cognito-identity-js": "^6.3.7",
     "axios": "^1.6.8",
     "change-case": "^5.4.3",

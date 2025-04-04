@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 
 import Input from "@components/Input";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import FormControl from "@/app/components/form-control";
 
 const loginSchema = z.object({

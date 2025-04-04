@@ -2,7 +2,7 @@
 
 import React, { HTMLAttributes } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Divider, Input } from "@nextui-org/react";
+import { Button, Divider, Input } from "@heroui/react";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { ArrowLeftIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 

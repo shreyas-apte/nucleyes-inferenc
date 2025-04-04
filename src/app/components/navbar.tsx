@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useAtom } from "jotai/react";
-import { Avatar, Button, Divider, CircularProgress } from "@nextui-org/react";
+import { Avatar, Button, Divider, CircularProgress } from "@heroui/react";
 
 import { dashboardAtom } from "../atoms/dashboard.atom";
 

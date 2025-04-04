@@ -5,7 +5,7 @@ import { Controller, FieldPath, FieldValues } from "react-hook-form";
 import {
   Input as NextUiInput,
   InputProps as NextUiInputProps,
-} from "@nextui-org/react";
+} from "@heroui/react";
 
 type InputProps<T extends FieldValues> = {
   name: FieldPath<T>;

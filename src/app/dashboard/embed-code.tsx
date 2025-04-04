@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 
 import Pulse from "../components/pulse";
 import ContainerTile from "../components/container-tile";

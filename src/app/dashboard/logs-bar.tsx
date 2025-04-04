@@ -1,4 +1,4 @@
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 import EmbedCode from "./embed-code";

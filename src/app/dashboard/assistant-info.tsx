@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
-import { Avatar } from "@nextui-org/react";
+import { Avatar } from "@heroui/react";
 import { CameraIcon } from "@heroicons/react/24/solid";
-import { Button, Input, Select, SelectItem, Textarea } from "@nextui-org/react";
+import { Button, Input, Select, SelectItem, Textarea } from "@heroui/react";
 
 import AddUrls from "./add-urls";
 import AllApps from "./all-apps";

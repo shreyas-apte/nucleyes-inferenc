@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Input, Checkbox, Button, Divider } from "@nextui-org/react";
+import { Input, Checkbox, Button, Divider } from "@heroui/react";
 
 import cx from "../utils/cx";
 import TrashIcon from "../assets/icons/trash.svg";
