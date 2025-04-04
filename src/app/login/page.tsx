@@ -5,6 +5,7 @@ import { z } from "zod";
 import { signIn } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
+import Image from "next/image";
 
 import Input from "@components/Input";
 import { Button } from "@heroui/react";
@@ -125,10 +126,11 @@ const LoginForm = () => {
           className="w-full flex items-center justify-center text-sm font-medium px-2 py-3 gap-2 border border-slate-200 rounded-lg text-slate-700 hover:border-slate-300 hover:shadow transition duration-150"
           onClick={() => signIn("cognito")}
         >
-          <img
+          <Image
             className="w-6 h-6"
             src="https://www.svgrepo.com/show/475656/google-color.svg"
-            loading="lazy"
+            width={24}
+            height={24}
             alt="google logo"
           />
           Sign in with Google
@@ -141,7 +143,13 @@ const LoginForm = () => {
 const FormHeader = () => {
   return (
     <Fragment>
-      <img src="/logo.jpeg" alt="logo" className="w-16 rounded-md" />
+      <Image
+        src="/logo.jpeg"
+        alt="logo"
+        width={64}
+        height={64}
+        className="w-16 rounded-md"
+      />
       <h2 className="text-center text-2xl leading-snug">
         Sign in to <br /> <span className="text-4xl font-bold">Inferenc</span>
       </h2>

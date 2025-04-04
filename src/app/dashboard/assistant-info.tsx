@@ -82,7 +82,7 @@ const AssistantInfo = ({
             placeholder="Select Assistant"
           >
             {gptModels.map((model) => (
-              <SelectItem key={model.value} value={model.value}>
+              <SelectItem key={model.value}>
                 {model.label}
               </SelectItem>
             ))}
@@ -151,7 +151,7 @@ const AssistantInfo = ({
             placeholder="AI platform"
           >
             {gptModels.map((model) => (
-              <SelectItem key={model.value} value={model.value}>
+              <SelectItem key={model.value}>
                 {model.label}
               </SelectItem>
             ))}
@@ -165,7 +165,7 @@ const AssistantInfo = ({
             placeholder="Select model"
           >
             {gptModels.map((model) => (
-              <SelectItem key={model.value} value={model.value}>
+              <SelectItem key={model.value}>
                 {model.label}
               </SelectItem>
             ))}
