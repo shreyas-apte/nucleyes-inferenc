@@ -18,7 +18,7 @@ const UserAccount = () => {
     <section className="flex-1 flex justify-center">
       <div className="flex-1 max-w-3xl">
         <div className="flex items-center gap-x-4 mt-6 -mb-2">
-          <Button isIconOnly variant="light" size="sm" onClick={router.back}>
+          <Button isIconOnly variant="light" size="sm" onPress={router.back}>
             <ArrowLeftIcon className="w-6 h-6" width={24} height={24} />
           </Button>
           <h3 className="font-semibold text-base">User Account</h3>

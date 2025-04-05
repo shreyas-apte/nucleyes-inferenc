@@ -88,7 +88,7 @@ const UploadFiles = () => {
                     <DocumentOutlineIcon className="w-5 h-5 shrink-0 text-grey" />
                     <h4>Uploaded Files</h4>
                   </div>
-                  <Button isIconOnly variant="light" size="sm" onClick={open}>
+                  <Button isIconOnly variant="light" size="sm" onPress={open}>
                     <PlusCircleSolidIcon className="text-primary w-5 h-5" />
                   </Button>
                 </div>
@@ -199,7 +199,7 @@ const FileConnection = ({
       </span>
       <p className="grow truncate">{name}</p>
       <Button
-        onClick={handleRemove}
+        onPress={handleRemove}
         color="danger"
         size="sm"
         isIconOnly
