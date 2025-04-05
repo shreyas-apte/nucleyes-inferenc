@@ -11,10 +11,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   metadataBase: new URL(`https://${process.env.VERCEL_URL}`),
   title: {
-    default: "Next.js AI Chatbot",
-    template: `%s - Next.js AI Chatbot`,
+    default: "INFERENC",
+    template: `%s - INFERENC`,
   },
-  description: "An AI-powered chatbot template built with Next.js and Vercel.",
+  description: "A RAG-based AI Chat Application built with Next.js and Vercel.",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon-16x16.png",
