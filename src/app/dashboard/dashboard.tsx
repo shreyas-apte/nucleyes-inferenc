@@ -17,6 +17,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeHighlight from 'rehype-highlight';
+import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 import LogsBar from "./logs-bar";
 import { messages } from "../constants";
@@ -182,17 +183,57 @@ const DashboardLayout = ({
     width: number;
     height: number;
   }>();
+  const [isAssistantInfoCollapsed, setIsAssistantInfoCollapsed] = useState(false);
 
   return (
     <AppLayout>
       <section className="flex-1 flex items-stretch justify-between bg-background-secondary">
-        <AssistantInfo
-          basicDetails={details.details}
-          onResize={(size) => {
-            setAssistantInfoSize(size);
-            console.log(size);
-          }}
-        />
+        <div className={`relative transition-all duration-300 ease-in-out ${isAssistantInfoCollapsed ? 'w-[50px]' : ''}`}>
+          {isAssistantInfoCollapsed ? (
+            <div className="fixed top-[76px] h-[calc(100vh-76px)] bg-background-primary border-r border-background-tertiary w-[50px] flex flex-col items-center">
+              <div className="flex justify-center w-full px-3 py-2">
+                <Button 
+                  isIconOnly 
+                  size="sm" 
+                  variant="light" 
+                  onClick={() => setIsAssistantInfoCollapsed(false)}
+                >
+                  <ArrowRightIcon className="w-5 h-5 text-white" />
+                </Button>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-background-secondary flex items-center justify-center mt-4">
+                <Image 
+                  src={details?.details?.image || "/logo.svg"} 
+                  alt={details?.details?.name || "Assistant"} 
+                  width={20} 
+                  height={20} 
+                  className="rounded-full"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col bg-background-primary min-w-[340px] w-1/4 h-[calc(100vh-76px)]">
+              <div className="flex justify-end px-3 py-2 border-r border-background-tertiary">
+                <Button 
+                  isIconOnly 
+                  size="sm" 
+                  variant="light" 
+                  onClick={() => setIsAssistantInfoCollapsed(true)}
+                >
+                  <ArrowLeftIcon className="w-5 h-5 text-white" />
+                </Button>
+              </div>
+              <div className="overflow-hidden h-[calc(100%-40px)]">
+                <AssistantInfo
+                  basicDetails={details.details}
+                  onResize={(size) => {
+                    setAssistantInfoSize(size);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
         {children}
         {isLogsBarActive ? (
           <LogsBar onChangeOpen={onChangeLogsBarDrawer} />
@@ -216,7 +257,7 @@ const MainDashBoardContent = ({
   onMessageSubmit?: (message: string) => void;
 }) => {
   return (
-    <div className="relative flex-1 flex flex-col h-[calc(100vh-76px)]">
+    <div className="relative flex-1 flex flex-col h-[calc(100vh-76px)] overflow-x-hidden">
       <div className="absolute top-6 w-[calc(100%-64px)] flex justify-between items-center px-8 z-10">
         <div></div>
         <div className="flex justify-end gap-x-2 items-center">
@@ -236,7 +277,7 @@ const MainDashBoardContent = ({
         </div>
       </div>
       
-      <div className="flex-1 flex flex-col-reverse overflow-y-auto px-8 pt-16 pb-28">
+      <div className="flex-1 flex flex-col-reverse overflow-y-auto overflow-x-hidden px-8 pt-16 pb-28">
         {isAiResponding && (
           <div className="flex gap-x-4 mb-8">
             <Image
@@ -283,7 +324,7 @@ const MessageItem = ({
   className?: string;
 }) => {
   return (
-    <div className={`flex gap-x-4 ${className || ""}`}>
+    <div className={`flex gap-x-4 ${className || ""} max-w-full`}>
       <Image
         width={24}
         height={24}
@@ -291,49 +332,49 @@ const MessageItem = ({
         alt={message.sender.name}
         className="shrink-0 w-6 h-6 rounded-full"
       />
-      <div className="flex-1">
+      <div className="flex-1 min-w-0 overflow-hidden">
         <h4 className="text-base font-semibold">{message.sender.name}</h4>
         {message.type === "bot" ? (
-          <div className="markdown-content mt-0.5 text-sm font-normal">
+          <div className="markdown-content mt-0.5 text-sm font-normal overflow-hidden">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw, rehypeHighlight]}
               components={{
                 a: ({node, ...props}) => <a className="text-primary hover:underline" {...props} />,
-                p: ({node, ...props}) => <p className="my-2" {...props} />,
-                h1: ({node, ...props}) => <h1 className="text-xl font-bold my-3" {...props} />,
-                h2: ({node, ...props}) => <h2 className="text-lg font-bold my-2" {...props} />,
-                h3: ({node, ...props}) => <h3 className="text-md font-bold my-2" {...props} />,
+                p: ({node, ...props}) => <p className="my-2 break-words" {...props} />,
+                h1: ({node, ...props}) => <h1 className="text-xl font-bold my-3 break-words" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-lg font-bold my-2 break-words" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-md font-bold my-2 break-words" {...props} />,
                 ul: ({node, ...props}) => <ul className="list-disc ml-4 my-2" {...props} />,
                 ol: ({node, ...props}) => <ol className="list-decimal ml-4 my-2" {...props} />,
-                li: ({node, ...props}) => <li className="my-1" {...props} />,
+                li: ({node, ...props}) => <li className="my-1 break-words" {...props} />,
                 code: ({node, className, children, ...props}) => {
                   const match = /language-(\w+)/.exec(className || '');
                   return match ? (
-                    <div className="my-3 overflow-auto rounded-md bg-gray-800">
-                      <pre className={`${className} p-2 text-xs overflow-auto`}>
+                    <div className="my-3 overflow-auto rounded-md bg-gray-800 max-w-full">
+                      <pre className={`${className} p-2 text-xs overflow-auto whitespace-pre-wrap break-all`}>
                         <code className={className} {...props}>{children}</code>
                       </pre>
                     </div>
                   ) : (
-                    <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-xs" {...props}>
+                    <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-xs break-all" {...props}>
                       {children}
                     </code>
                   );
                 },
                 blockquote: ({node, ...props}) => (
-                  <blockquote className="border-l-4 border-gray-200 pl-4 italic my-2" {...props} />
+                  <blockquote className="border-l-4 border-gray-200 pl-4 italic my-2 break-words" {...props} />
                 ),
                 table: ({node, ...props}) => (
-                  <div className="overflow-auto my-4">
-                    <table className="min-w-full divide-y divide-gray-300" {...props} />
+                  <div className="overflow-x-auto my-4 max-w-full">
+                    <table className="w-full divide-y divide-gray-300 table-auto" {...props} />
                   </div>
                 ),
                 th: ({node, ...props}) => (
-                  <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider bg-gray-100 dark:bg-gray-700" {...props} />
+                  <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider bg-gray-100 dark:bg-gray-700 break-words" {...props} />
                 ),
                 td: ({node, ...props}) => (
-                  <td className="px-3 py-2 text-sm" {...props} />
+                  <td className="px-3 py-2 text-sm break-words" {...props} />
                 ),
                 tr: ({node, ...props}) => (
                   <tr className="even:bg-gray-50 dark:even:bg-gray-800" {...props} />
@@ -348,7 +389,7 @@ const MessageItem = ({
           </div>
         ) : (
           <Linkify>
-            <p className="[&>a]:text-primary mt-0.5 text-sm font-normal whitespace-break-spaces break-word">
+            <p className="[&>a]:text-primary mt-0.5 text-sm font-normal break-words">
               {message.text}
             </p>
           </Linkify>

@@ -60,9 +60,9 @@ const AssistantInfo = ({
   return (
     <div
       ref={assistantInfoRef}
-      className="bg-background-primary border-r-1 border-background-tertiary flex-shrink-0 min-w-[300px] w-1/5 px-4 py-6 max-h-[calc(100vh-76px)] overflow-y-auto no-scrollbar"
+      className="bg-background-primary border-r-1 border-background-tertiary flex-shrink-0 min-w-[340px] w-1/4 px-4 py-4 h-[calc(100vh-116px)] overflow-y-auto scrollbar-thin"
     >
-      <div className="pb-5 border-b-1 border-background-tertiary flex items-center justify-between gap-x-2">
+      <div className="pb-4 border-b-1 border-background-tertiary flex items-center justify-between gap-x-2">
         <Button
           radius="sm"
           variant="solid"
@@ -102,7 +102,7 @@ const AssistantInfo = ({
           />
         ))}
       </Tabs> */}
-      <div className="my-5">
+      <div className="my-4">
         {basicDetails.image ? (
           <div className="relative w-fit">
             <Avatar src="/logo.svg" name="assistant" />
@@ -124,7 +124,7 @@ const AssistantInfo = ({
           </div>
         )}
       </div>
-      <div className="mt-12">
+      <div className="mt-8">
         <Input
           radius="sm"
           type="text"
@@ -135,13 +135,13 @@ const AssistantInfo = ({
         />
         <Textarea
           radius="sm"
-          className="my-6"
+          className="my-4"
           variant="bordered"
           labelPlacement="outside"
           label="Define Role & Instruction"
           placeholder="Enter bot instructions"
         />
-        <div className="mt-6 flex justify-between items-center gap-x-2">
+        <div className="mt-4 flex justify-between items-center gap-x-2">
           <Select
             radius="sm"
             fullWidth
@@ -171,13 +171,13 @@ const AssistantInfo = ({
             ))}
           </Select>
         </div>
-        <div className="flex flex-col my-5 gap-y-5">
+        <div className="flex flex-col my-4 gap-y-4">
           <AddUrls />
           <UploadFiles />
           <CloudPlatforms />
           <AllApps />
         </div>
-        <div className="mt-6 flex justify-between items-center">
+        <div className="mt-4 mb-2 flex justify-between items-center">
           <div className="flex-1 flex items-center gap-x-4">
             <Button
               radius="sm"
