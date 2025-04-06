@@ -43,6 +43,7 @@ export default function Dashboard({
   const [dashboardConfig, setDashboardConfig] = useAtom(dashboardAtom);
   const [chatMessages, setChatMessages] = useState([...messages]);
   const [isAiResponding, setIsAiResponding] = useState(false);
+  const [isClearChatModalOpen, setIsClearChatModalOpen] = useState(false);
 
   const isLogsBarActive = dashboardConfig.isLogsBarOpen;
   const isShareModalOpen = dashboardConfig.isShareModalActive;
@@ -59,6 +60,15 @@ export default function Dashboard({
       ...dashboardConfig,
       isShareModalActive: value,
     });
+  };
+
+  const handleClearChatClick = () => {
+    setIsClearChatModalOpen(true);
+  };
+
+  const handleConfirmClearChat = () => {
+    setChatMessages([]);
+    setIsClearChatModalOpen(false);
   };
 
   // Function to get response from Gemini
@@ -205,11 +215,36 @@ export default function Dashboard({
         assistantDetails={details}
         onChangeLogsDrawer={isLogsBarActive ? undefined : handleChangeLogsBar}
         onMessageSubmit={handleMessageSubmit}
+        onClearChat={handleClearChatClick}
       />
       <ShareModalDashboardContent
         isOpen={isShareModalOpen}
         onOpenChange={handleShareModalOpen}
       />
+      <Modal 
+        isOpen={isClearChatModalOpen} 
+        onClose={() => setIsClearChatModalOpen(false)}
+        size="sm"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Clear Chat</ModalHeader>
+              <ModalBody>
+                <p>Are you sure you want to clear all messages?</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button color="danger" onPress={handleConfirmClearChat}>
+                  Clear
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </DashboardLayout>
   );
 }
@@ -243,6 +278,7 @@ const DashboardLayout = ({
                   size="sm" 
                   variant="light" 
                   onClick={() => setIsAssistantInfoCollapsed(false)}
+                  aria-label="Expand assistant info panel"
                 >
                   <ArrowRightIcon className="w-5 h-5 text-white" />
                 </Button>
@@ -265,6 +301,7 @@ const DashboardLayout = ({
                   size="sm" 
                   variant="light" 
                   onClick={() => setIsAssistantInfoCollapsed(true)}
+                  aria-label="Collapse assistant info panel"
                 >
                   <ArrowLeftIcon className="w-5 h-5 text-white" />
                 </Button>
@@ -289,19 +326,23 @@ const DashboardLayout = ({
   );
 };
 
+interface MainDashBoardContentProps {
+  messages: Message[];
+  isAiResponding?: boolean;
+  assistantDetails?: Assistant;
+  onChangeLogsDrawer?: (value: boolean) => void;
+  onMessageSubmit?: (message: string) => void;
+  onClearChat?: () => void;
+}
+
 const MainDashBoardContent = ({
   messages: chatMessages,
   isAiResponding,
   assistantDetails,
   onChangeLogsDrawer,
   onMessageSubmit,
-}: {
-  messages: Message[];
-  isAiResponding?: boolean;
-  assistantDetails?: Assistant;
-  onChangeLogsDrawer?: (value: boolean) => void;
-  onMessageSubmit?: (message: string) => void;
-}) => {
+  onClearChat,
+}: MainDashBoardContentProps) => {
   // Check if there's already a message with "sending" status
   const hasMessageSending = chatMessages.some(message => message.status === "sending");
 
@@ -310,7 +351,14 @@ const MainDashBoardContent = ({
       <div className="absolute top-6 w-[calc(100%-64px)] flex justify-between items-center px-8 z-10">
         <div></div>
         <div className="flex justify-end gap-x-2 items-center">
-          <Button isIconOnly size="sm" variant="light">
+          <Button 
+            isIconOnly 
+            size="sm" 
+            variant="light"
+            onClick={onClearChat}
+            title="Clear chat"
+            aria-label="Clear chat history"
+          >
             <BrushOutlineIcon />
           </Button>
           {onChangeLogsDrawer ? (
@@ -319,6 +367,7 @@ const MainDashBoardContent = ({
               size="sm"
               variant="light"
               onClick={() => onChangeLogsDrawer(true)}
+              aria-label="Open logs panel"
             >
               <AdjustmentsHorizontalIcon width={26} height={26} />
             </Button>
@@ -429,7 +478,17 @@ const MessageItem = ({
                   <tr className="even:bg-gray-50 dark:even:bg-gray-800" {...props} />
                 ),
                 img: ({node, ...props}) => (
-                  <img className="max-w-full h-auto rounded my-2" {...props} alt={props.alt || 'Image'} />
+                  <div className="my-2 max-w-full">
+                    <Image
+                      src={props.src || ''}
+                      alt={props.alt || 'Image'}
+                      width={props.width ? Number(props.width) : 500}
+                      height={props.height ? Number(props.height) : 300}
+                      className="rounded max-w-full h-auto"
+                      style={{ maxWidth: '100%', height: 'auto' }}
+                      unoptimized={!props.src?.startsWith('/')}
+                    />
+                  </div>
                 ),
               }}
             >
@@ -452,9 +511,9 @@ const MessageItem = ({
         )}
         {isLastItem && message.type === "bot" && message.status !== "sending" ? (
           <div className="flex items-center gap-x-4 text-grey mt-3">
-            <CopyAltIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" />
-            <ReloadIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" />
-            <DisLikeOutlineIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" />
+            <CopyAltIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" aria-label="Copy message" role="button" tabIndex={0} />
+            <ReloadIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" aria-label="Regenerate response" role="button" tabIndex={0} />
+            <DisLikeOutlineIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" aria-label="Dislike response" role="button" tabIndex={0} />
           </div>
         ) : null}
       </div>
@@ -539,6 +598,7 @@ const MessageBox = ({
           onClick={handleSendClick}
           disabled={isDisabled || !message.trim()}
           className="mr-2"
+          aria-label="Send message"
         >
           <SendArrowOutlineIcon className="w-4 h-4" />
         </Button>
