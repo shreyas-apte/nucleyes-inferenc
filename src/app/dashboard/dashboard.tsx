@@ -18,7 +18,6 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeHighlight from 'rehype-highlight';
 
-import Threads from "./threads";
 import LogsBar from "./logs-bar";
 import { messages } from "../constants";
 import AppLayout from "./dashboard-layout";
@@ -46,14 +45,6 @@ export default function Dashboard({
 
   const isLogsBarActive = dashboardConfig.isLogsBarOpen;
   const isShareModalOpen = dashboardConfig.isShareModalActive;
-  const isThreadsDrawerActive = dashboardConfig.isThreadsActive;
-
-  const handleChangeThreadsDrawer = (value: boolean) => {
-    setDashboardConfig({
-      ...dashboardConfig,
-      isThreadsActive: value,
-    });
-  };
 
   const handleChangeLogsBar = (value: boolean) => {
     setDashboardConfig({
@@ -160,14 +151,11 @@ export default function Dashboard({
       details={details}
       isLogsBarActive={isLogsBarActive}
       onChangeLogsBarDrawer={handleChangeLogsBar}
-      isThreadsDrawerActive={isThreadsDrawerActive}
-      onChangeThreadsDrawer={handleChangeThreadsDrawer}
     >
       <MainDashBoardContent
         messages={chatMessages}
         isAiResponding={isAiResponding}
         assistantDetails={details}
-        onChangeThreadsDrawer={handleChangeThreadsDrawer}
         onChangeLogsDrawer={isLogsBarActive ? undefined : handleChangeLogsBar}
         onMessageSubmit={handleMessageSubmit}
       />
@@ -183,16 +171,12 @@ const DashboardLayout = ({
   details,
   children,
   isLogsBarActive,
-  isThreadsDrawerActive,
   onChangeLogsBarDrawer,
-  onChangeThreadsDrawer,
 }: {
   children: React.ReactNode;
   details: Assistant;
   isLogsBarActive: boolean;
-  isThreadsDrawerActive: boolean;
   onChangeLogsBarDrawer: (value: boolean) => void;
-  onChangeThreadsDrawer: (value: boolean) => void;
 }) => {
   const [assistantInfoSize, setAssistantInfoSize] = useState<{
     width: number;
@@ -209,11 +193,6 @@ const DashboardLayout = ({
             console.log(size);
           }}
         />
-        <Threads
-          isDrawerActive={isThreadsDrawerActive}
-          leftOffset={assistantInfoSize?.width || 0}
-          onChangeDrawerActive={onChangeThreadsDrawer}
-        />
         {children}
         {isLogsBarActive ? (
           <LogsBar onChangeOpen={onChangeLogsBarDrawer} />
@@ -228,29 +207,18 @@ const MainDashBoardContent = ({
   isAiResponding,
   assistantDetails,
   onChangeLogsDrawer,
-  onChangeThreadsDrawer,
   onMessageSubmit,
 }: {
   messages: Message[];
   isAiResponding?: boolean;
   assistantDetails?: Assistant;
   onChangeLogsDrawer?: (value: boolean) => void;
-  onChangeThreadsDrawer?: (value: boolean) => void;
   onMessageSubmit?: (message: string) => void;
 }) => {
   return (
     <div className="relative flex-1 flex flex-col h-[calc(100vh-76px)]">
       <div className="absolute top-6 w-[calc(100%-64px)] flex justify-between items-center px-8 z-10">
-        {onChangeThreadsDrawer ? (
-          <Button
-            isIconOnly
-            size="sm"
-            variant="light"
-            onClick={() => onChangeThreadsDrawer(true)}
-          >
-            <DoubleArrowRightOutlineIcon />
-          </Button>
-        ) : null}
+        <div></div>
         <div className="flex justify-end gap-x-2 items-center">
           <Button isIconOnly size="sm" variant="light">
             <BrushOutlineIcon />

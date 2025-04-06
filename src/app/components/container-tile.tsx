@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import LeftDrawer from "./left-drawer";
 import RightDrawer from "./right-drawer";
 import PlusCircleSolidIcon from "../assets/icons/plus-circle-solid.svg";
 
@@ -9,7 +8,7 @@ const ContainerTile: React.FC<{
   moreCount?: number;
   icon: React.ReactNode;
   children: React.ReactNode;
-  drawerSide?: "left" | "right";
+  drawerSide?: "right";
   collapsedChildren?: React.ReactNode;
   isDrawerActive: boolean;
   onChangeDrawerActive: (value: boolean) => void;
@@ -20,7 +19,7 @@ const ContainerTile: React.FC<{
   children,
   isDrawerActive,
   collapsedChildren,
-  drawerSide = "left",
+  drawerSide = "right",
   onChangeDrawerActive,
 }) => {
   return (
@@ -45,23 +44,13 @@ const ContainerTile: React.FC<{
           </small>
         )}
       </div>
-      {drawerSide === "left" ? (
-        <LeftDrawer
-          label={title}
-          isActive={isDrawerActive}
-          onClose={() => onChangeDrawerActive(false)}
-        >
-          {children}
-        </LeftDrawer>
-      ) : (
-        <RightDrawer
-          label={title}
-          isActive={isDrawerActive}
-          onClose={() => onChangeDrawerActive(false)}
-        >
-          {children}
-        </RightDrawer>
-      )}
+      <RightDrawer
+        label={title}
+        isActive={isDrawerActive}
+        onClose={() => onChangeDrawerActive(false)}
+      >
+        {children}
+      </RightDrawer>
     </>
   );
 };
