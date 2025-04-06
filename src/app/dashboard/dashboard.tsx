@@ -66,30 +66,12 @@ export default function Dashboard({
     try {
       setIsAiResponding(true);
       
-      // Call Gemini API
-      const response = await fetch('/api/gemini', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          model: details.details.model,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response from Gemini');
-      }
-
-      const data = await response.json();
-      
-      // Create AI response message
-      const aiMessage: Message = {
+      // Create placeholder AI message that will be updated with streamed content
+      const placeholderMessage: Message = {
         id: `ai-message-${Date.now()}`,
-        text: data.text || "I'm not sure how to respond to that.",
+        text: "",
         type: "bot",
-        status: "sent",
+        status: "sending",
         createdAt: new Date().toISOString(),
         sender: {
           id: "assistant",
@@ -98,8 +80,66 @@ export default function Dashboard({
         },
       };
 
-      // Add AI message to chat
-      setChatMessages(prev => [...prev, aiMessage]);
+      // Add placeholder message to chat
+      setChatMessages(prev => [...prev, placeholderMessage]);
+      
+      // Call Gemini API with stream: true
+      const response = await fetch('/api/gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          model: details.details.model,
+          stream: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response from Gemini');
+      }
+
+      if (!response.body) {
+        throw new Error('Response body is null');
+      }
+      
+      // Set up stream reader
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let streamedText = "";
+      
+      // Process the stream
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) {
+          break;
+        }
+        
+        // Decode the chunk and append to streamed text
+        const chunk = decoder.decode(value, { stream: true });
+        streamedText += chunk;
+        
+        // Update the message with the current streamed content
+        setChatMessages(prevMessages => 
+          prevMessages.map(msg => 
+            msg.id === placeholderMessage.id 
+              ? { ...msg, text: streamedText, status: "sending" } 
+              : msg
+          )
+        );
+      }
+      
+      // Mark message as completed
+      setChatMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg.id === placeholderMessage.id 
+            ? { ...msg, status: "sent" } 
+            : msg
+        )
+      );
+      
     } catch (error) {
       console.error('Error getting AI response:', error);
       
@@ -117,8 +157,14 @@ export default function Dashboard({
         },
       };
       
-      setChatMessages(prev => [...prev, errorMessage]);
+      setChatMessages(prev => {
+        // Remove placeholder message if it exists
+        const filteredMessages = prev.filter(msg => msg.status !== "sending");
+        return [...filteredMessages, errorMessage];
+      });
     } finally {
+      // Only set isAiResponding to false after we're done with streaming
+      // and have updated the message status to "sent"
       setIsAiResponding(false);
     }
   };
@@ -256,6 +302,9 @@ const MainDashBoardContent = ({
   onChangeLogsDrawer?: (value: boolean) => void;
   onMessageSubmit?: (message: string) => void;
 }) => {
+  // Check if there's already a message with "sending" status
+  const hasMessageSending = chatMessages.some(message => message.status === "sending");
+
   return (
     <div className="relative flex-1 flex flex-col h-[calc(100vh-60px)] overflow-x-hidden">
       <div className="absolute top-6 w-[calc(100%-64px)] flex justify-between items-center px-8 z-10">
@@ -278,7 +327,7 @@ const MainDashBoardContent = ({
       </div>
       
       <div className="flex-1 flex flex-col-reverse overflow-y-auto overflow-x-hidden px-8 pt-16 pb-28">
-        {isAiResponding && (
+        {isAiResponding && !hasMessageSending && (
           <div className="flex gap-x-4 mb-8">
             <Image
               width={24}
@@ -386,6 +435,13 @@ const MessageItem = ({
             >
               {message.text}
             </ReactMarkdown>
+            {message.status === "sending" && (
+              <p className="mt-0.5 text-sm font-normal">
+                <span className="inline-block w-2 h-2 bg-primary rounded-full mr-1 animate-pulse"></span>
+                <span className="inline-block w-2 h-2 bg-primary rounded-full mr-1 animate-pulse" style={{ animationDelay: "300ms" }}></span>
+                <span className="inline-block w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: "600ms" }}></span>
+              </p>
+            )}
           </div>
         ) : (
           <Linkify>
@@ -394,7 +450,7 @@ const MessageItem = ({
             </p>
           </Linkify>
         )}
-        {isLastItem && message.type === "bot" ? (
+        {isLastItem && message.type === "bot" && message.status !== "sending" ? (
           <div className="flex items-center gap-x-4 text-grey mt-3">
             <CopyAltIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" />
             <ReloadIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" />

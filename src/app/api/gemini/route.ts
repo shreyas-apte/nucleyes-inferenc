@@ -4,7 +4,7 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/ge
 
 export async function POST(request: Request) {
   try {
-    const { message, model } = await request.json();
+    const { message, model, stream } = await request.json();
 
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
@@ -42,12 +42,46 @@ export async function POST(request: Request) {
       ],
     });
     
-    // Create a proper content structure for the request
-    const result = await gemini.generateContent(message);
-    const response = await result.response;
-    const aiResponse = response.text();
+    // Handle streaming response if requested
+    if (stream) {
+      // Create response stream
+      const stream = new TransformStream();
+      const writer = stream.writable.getWriter();
+      const encoder = new TextEncoder();
 
-    return NextResponse.json({ text: aiResponse });
+      // Generate content with streaming
+      const result = await gemini.generateContentStream(message);
+      
+      // Process response chunks as they arrive
+      (async () => {
+        try {
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
+            if (text) {
+              await writer.write(encoder.encode(text));
+            }
+          }
+          await writer.close();
+        } catch (error) {
+          console.error('Streaming error:', error);
+          await writer.abort(error);
+        }
+      })();
+
+      return new Response(stream.readable, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Transfer-Encoding': 'chunked',
+        },
+      });
+    } else {
+      // Non-streaming response (original behavior)
+      const result = await gemini.generateContent(message);
+      const response = await result.response;
+      const aiResponse = response.text();
+
+      return NextResponse.json({ text: aiResponse });
+    }
   } catch (error) {
     console.error('Google Gemini API error:', error);
     return NextResponse.json(
