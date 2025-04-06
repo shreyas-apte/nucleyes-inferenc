@@ -199,7 +199,7 @@ const ManageApiKey = () => {
       <div>
         <p className="text-grey font-medium text-sm">
           Generate faster responses with zero waiting time. Unlock total privacy
-          and unlimited credits for response generation by using your own OpenAI
+          and unlimited credits for response generation by using your own Gemini
           API key.
         </p>
         <div className="flex items-center gap-x-8 mt-6">
@@ -224,7 +224,7 @@ const ManageApiKey = () => {
               }
             />
             <small className="text-grey text-sm font-normal">
-              Available models: GPT 3.5, GPT 4, GPT 4 turbo
+              Available models: Gemini-Flash, Gemini-Pro, Gemini-Ultra
             </small>
           </div>
           <div className="flex items-center gap-x-2 text-primary">

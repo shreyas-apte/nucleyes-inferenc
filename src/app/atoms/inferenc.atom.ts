@@ -9,7 +9,7 @@ export const inferencAtom = atom<Assistant>({
     image: "/logo.svg",
     urls: [],
     files: [],
-    model: "GPT-1",
-    platform: "Dall-e",
+    model: "Gemini-Pro",
+    platform: "Gemini",
   },
 });

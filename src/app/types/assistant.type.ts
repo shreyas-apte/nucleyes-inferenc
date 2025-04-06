@@ -13,9 +13,9 @@ export interface AssistantBasicDetails {
   files: AssistantFile[];
 }
 
-export type AI_Platform = "OpenAI" | "Dall-e";
+export type AI_Platform = "Gemini" | "Dall-e";
 
-export type AssistantModel = "GPT-1" | "GPT-2" | "GPT-3" | "GPT-4";
+export type AssistantModel = "Gemini-Flash" | "Gemini-Pro" | "Gemini-Ultra";
 
 export interface AssistantUrl {
   id: string;

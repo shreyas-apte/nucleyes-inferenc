@@ -11,7 +11,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import React, { HTMLAttributes, useRef, useState } from "react";
+import React, { HTMLAttributes, useRef, useState, useEffect } from "react";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 
 import Threads from "./threads";
@@ -37,6 +37,8 @@ export default function Dashboard({
   onDetailsChange: (details: Assistant) => void;
 }) {
   const [dashboardConfig, setDashboardConfig] = useAtom(dashboardAtom);
+  const [chatMessages, setChatMessages] = useState([...messages]);
+  const [isAiResponding, setIsAiResponding] = useState(false);
 
   const isLogsBarActive = dashboardConfig.isLogsBarOpen;
   const isShareModalOpen = dashboardConfig.isShareModalActive;
@@ -63,6 +65,92 @@ export default function Dashboard({
     });
   };
 
+  // Function to get response from Gemini
+  const getAiResponse = async (userMessage: string) => {
+    try {
+      setIsAiResponding(true);
+      
+      // Call Gemini API
+      const response = await fetch('/api/gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          model: details.details.model,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response from Gemini');
+      }
+
+      const data = await response.json();
+      
+      // Create AI response message
+      const aiMessage: Message = {
+        id: `ai-message-${Date.now()}`,
+        text: data.text || "I'm not sure how to respond to that.",
+        type: "bot",
+        status: "sent",
+        createdAt: new Date().toISOString(),
+        sender: {
+          id: "assistant",
+          name: details.details.name || "AI Assistant",
+          image: details.details.image || "https://picsum.photos/200",
+        },
+      };
+
+      // Add AI message to chat
+      setChatMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: `error-message-${Date.now()}`,
+        text: "Sorry, I encountered an error while processing your request.",
+        type: "bot",
+        status: "sent",
+        createdAt: new Date().toISOString(),
+        sender: {
+          id: "assistant",
+          name: details.details.name || "AI Assistant",
+          image: details.details.image || "https://picsum.photos/200",
+        },
+      };
+      
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsAiResponding(false);
+    }
+  };
+
+  const handleMessageSubmit = async (message: string) => {
+    if (!message.trim()) return;
+    
+    // Create a new user message
+    const newMessage: Message = {
+      id: `user-message-${Date.now()}`,
+      text: message,
+      type: "user",
+      status: "sent",
+      createdAt: new Date().toISOString(),
+      sender: {
+        id: "user",
+        name: "You",
+        image: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+      },
+    };
+    
+    // Add the new message to the chat history
+    setChatMessages(prev => [...prev, newMessage]);
+    
+    // Get AI response
+    await getAiResponse(message);
+  };
+
   return (
     <DashboardLayout
       details={details}
@@ -72,8 +160,12 @@ export default function Dashboard({
       onChangeThreadsDrawer={handleChangeThreadsDrawer}
     >
       <MainDashBoardContent
+        messages={chatMessages}
+        isAiResponding={isAiResponding}
+        assistantDetails={details}
         onChangeThreadsDrawer={handleChangeThreadsDrawer}
         onChangeLogsDrawer={isLogsBarActive ? undefined : handleChangeLogsBar}
+        onMessageSubmit={handleMessageSubmit}
       />
       <ShareModalDashboardContent
         isOpen={isShareModalOpen}
@@ -128,11 +220,19 @@ const DashboardLayout = ({
 };
 
 const MainDashBoardContent = ({
+  messages: chatMessages,
+  isAiResponding,
+  assistantDetails,
   onChangeLogsDrawer,
   onChangeThreadsDrawer,
+  onMessageSubmit,
 }: {
+  messages: Message[];
+  isAiResponding?: boolean;
+  assistantDetails?: Assistant;
   onChangeLogsDrawer?: (value: boolean) => void;
   onChangeThreadsDrawer?: (value: boolean) => void;
+  onMessageSubmit?: (message: string) => void;
 }) => {
   return (
     <div className="relative flex-1 flex flex-col max-h-[calc(100vh-76px)] px-8 overflow-y-auto no-scrollbar">
@@ -164,16 +264,35 @@ const MainDashBoardContent = ({
         </div>
       </div>
       <div className="flex-1 flex flex-col justify-end gap-y-8 p-8 mb-28">
-        {messages.map((message, index) => (
+        {chatMessages.map((message, index) => (
           <MessageItem
             message={message}
             key={message.id}
-            isLastItem={index === messages.length - 1}
+            isLastItem={index === chatMessages.length - 1}
           />
         ))}
+        {isAiResponding && (
+          <div className="flex gap-x-4">
+            <Image
+              width={24}
+              height={24}
+              src={assistantDetails?.details?.image || "https://picsum.photos/200"}
+              alt={assistantDetails?.details?.name || "AI Assistant"}
+              className="shrink-0 w-6 h-6 rounded-full"
+            />
+            <div className="flex-1">
+              <h4 className="text-base font-semibold">{assistantDetails?.details?.name || "AI Assistant"}</h4>
+              <p className="mt-0.5 text-sm font-normal">
+                <span className="inline-block w-2 h-2 bg-primary rounded-full mr-1 animate-pulse"></span>
+                <span className="inline-block w-2 h-2 bg-primary rounded-full mr-1 animate-pulse" style={{ animationDelay: "300ms" }}></span>
+                <span className="inline-block w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: "600ms" }}></span>
+              </p>
+            </div>
+          </div>
+        )}
       </div>
       <div className="absolute w-[calc(100%-64px)] bottom-0 mt-auto bg-background-secondary pb-8">
-        <MessageBox />
+        <MessageBox onSubmit={onMessageSubmit} isDisabled={isAiResponding} />
       </div>
     </div>
   );
@@ -224,8 +343,15 @@ const MessageItem = ({
   );
 };
 
-const MessageBox = () => {
+const MessageBox = ({ 
+  onSubmit,
+  isDisabled 
+}: { 
+  onSubmit?: (message: string) => void;
+  isDisabled?: boolean;
+}) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [message, setMessage] = useState("");
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = textareaRef.current;
@@ -240,6 +366,22 @@ const MessageBox = () => {
       parseInt(computed.getPropertyValue("padding-bottom"), 10) +
       parseInt(computed.getPropertyValue("border-bottom-width"), 10);
     textarea.style.height = `${height}px`;
+
+    // Handle Enter key press (without shift)
+    if (e.key === "Enter" && !e.shiftKey && onSubmit && !isDisabled) {
+      e.preventDefault();
+      if (message.trim()) {
+        onSubmit(message);
+        setMessage(""); // Clear the input after sending
+      }
+    }
+  };
+
+  const handleSendClick = () => {
+    if (onSubmit && message.trim() && !isDisabled) {
+      onSubmit(message);
+      setMessage(""); // Clear the input after sending
+    }
   };
 
   return (
@@ -247,12 +389,21 @@ const MessageBox = () => {
       <div className="min-h-[80px] flex items-start justify-between gap-x-2 mx-6 bg-background-primary rounded-md overflow-hidden p-4 border border-background-tertiary">
         <textarea
           ref={textareaRef}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask a question..."
+          disabled={isDisabled}
           className="flex-1 bg-transparent border-none outline-none resize-none max-h-[30vh]"
-          defaultValue="NextUI is a React UI library that provides a set of accessible, reusable, and beautiful components."
         />
-        <Button isIconOnly variant="light" size="md" color="primary">
+        <Button 
+          isIconOnly 
+          variant="light" 
+          size="md" 
+          color="primary" 
+          onClick={handleSendClick}
+          disabled={isDisabled || !message.trim()}
+        >
           <SendArrowOutlineIcon className="w-5 h-5" />
         </Button>
       </div>
