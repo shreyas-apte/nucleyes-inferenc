@@ -235,8 +235,8 @@ const MainDashBoardContent = ({
   onMessageSubmit?: (message: string) => void;
 }) => {
   return (
-    <div className="relative flex-1 flex flex-col max-h-[calc(100vh-76px)] px-8 overflow-y-auto no-scrollbar">
-      <div className="absolute top-6 w-[calc(100%-64px)] flex justify-between items-center">
+    <div className="relative flex-1 flex flex-col h-[calc(100vh-76px)]">
+      <div className="absolute top-6 w-[calc(100%-64px)] flex justify-between items-center px-8 z-10">
         {onChangeThreadsDrawer ? (
           <Button
             isIconOnly
@@ -263,16 +263,10 @@ const MainDashBoardContent = ({
           ) : null}
         </div>
       </div>
-      <div className="flex-1 flex flex-col justify-end gap-y-8 p-8 mb-28">
-        {chatMessages.map((message, index) => (
-          <MessageItem
-            message={message}
-            key={message.id}
-            isLastItem={index === chatMessages.length - 1}
-          />
-        ))}
+      
+      <div className="flex-1 flex flex-col-reverse overflow-y-auto px-8 pt-16 pb-28">
         {isAiResponding && (
-          <div className="flex gap-x-4">
+          <div className="flex gap-x-4 mb-8">
             <Image
               width={24}
               height={24}
@@ -290,8 +284,17 @@ const MainDashBoardContent = ({
             </div>
           </div>
         )}
+        {chatMessages.map((message, index) => (
+          <MessageItem
+            message={message}
+            key={message.id}
+            isLastItem={index === chatMessages.length - 1}
+            className="mb-8"
+          />
+        )).reverse()}
       </div>
-      <div className="absolute w-[calc(100%-64px)] bottom-0 mt-auto bg-background-secondary pb-8">
+      
+      <div className="absolute bottom-0 left-0 right-0 bg-background-secondary py-3 px-8 border-t border-background-tertiary">
         <MessageBox onSubmit={onMessageSubmit} isDisabled={isAiResponding} />
       </div>
     </div>
@@ -301,12 +304,14 @@ const MainDashBoardContent = ({
 const MessageItem = ({
   message,
   isLastItem,
+  className,
 }: {
   message: Message;
   isLastItem?: boolean;
+  className?: string;
 }) => {
   return (
-    <div className="flex gap-x-4">
+    <div className={`flex gap-x-4 ${className || ""}`}>
       <Image
         width={24}
         height={24}
@@ -317,25 +322,15 @@ const MessageItem = ({
       <div className="flex-1">
         <h4 className="text-base font-semibold">{message.sender.name}</h4>
         <Linkify>
-          {/* {message.type === "bot" ? (
-            <TypeAnimation
-              sequence={[message.text]}
-              wrapper="span"
-              speed={50}
-              repeat={0}
-              className="[&>a]:text-blue-600 mt-0.5 text-sm font-normal whitespace-break-spaces break-word block"
-            />
-          ) : ( */}
           <p className="[&>a]:text-primary mt-0.5 text-sm font-normal whitespace-break-spaces break-word">
             {message.text}
           </p>
-          {/* )} */}
         </Linkify>
         {isLastItem && message.type === "bot" ? (
           <div className="flex items-center gap-x-4 text-grey mt-3">
-            <CopyAltIcon className="w-5 h-5 shrink-0" />
-            <ReloadIcon className="w-5 h-5 shrink-0" />
-            <DisLikeOutlineIcon className="w-5 h-5 shrink-0" />
+            <CopyAltIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" />
+            <ReloadIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" />
+            <DisLikeOutlineIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" />
           </div>
         ) : null}
       </div>
@@ -353,20 +348,29 @@ const MessageBox = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [message, setMessage] = useState("");
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  // Reset textarea height when message is cleared
+  useEffect(() => {
+    if (message === "" && textareaRef.current) {
+      textareaRef.current.style.height = "24px"; // Reset to single line height
+    }
+  }, [message]);
+
+  const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
-    textarea.style.height = "inherit";
-    const computed = window.getComputedStyle(textarea);
-    const height =
-      parseInt(computed.getPropertyValue("border-top-width"), 10) +
-      parseInt(computed.getPropertyValue("padding-top"), 10) +
-      textarea.scrollHeight +
-      parseInt(computed.getPropertyValue("padding-bottom"), 10) +
-      parseInt(computed.getPropertyValue("border-bottom-width"), 10);
-    textarea.style.height = `${height}px`;
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = "24px";
+    
+    // Set the height based on content with a maximum of ~4 lines
+    const lineHeight = 24; // Approximate line height in pixels
+    const maxHeight = lineHeight * 4; // 4 lines max
+    
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = `${newHeight}px`;
+  };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Handle Enter key press (without shift)
     if (e.key === "Enter" && !e.shiftKey && onSubmit && !isDisabled) {
       e.preventDefault();
@@ -377,6 +381,11 @@ const MessageBox = ({
     }
   };
 
+  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+    adjustTextareaHeight();
+  };
+
   const handleSendClick = () => {
     if (onSubmit && message.trim() && !isDisabled) {
       onSubmit(message);
@@ -385,26 +394,29 @@ const MessageBox = ({
   };
 
   return (
-    <div>
-      <div className="min-h-[80px] flex items-start justify-between gap-x-2 mx-6 bg-background-primary rounded-md overflow-hidden p-4 border border-background-tertiary">
+    <div className="mx-6 bg-background-primary rounded-md overflow-hidden border border-background-tertiary">
+      <div className="flex items-center justify-between">
         <textarea
           ref={textareaRef}
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={handleInput}
           onKeyDown={handleKeyDown}
           placeholder="Ask a question..."
           disabled={isDisabled}
-          className="flex-1 bg-transparent border-none outline-none resize-none max-h-[30vh]"
+          rows={1}
+          className="flex-1 bg-transparent border-none outline-none resize-none overflow-y-auto px-3 py-2 min-h-[40px] text-sm"
+          style={{ height: "24px" }}
         />
         <Button 
           isIconOnly 
           variant="light" 
-          size="md" 
+          size="sm" 
           color="primary" 
           onClick={handleSendClick}
           disabled={isDisabled || !message.trim()}
+          className="mr-2"
         >
-          <SendArrowOutlineIcon className="w-5 h-5" />
+          <SendArrowOutlineIcon className="w-4 h-4" />
         </Button>
       </div>
     </div>
@@ -427,17 +439,18 @@ const ShareModalDashboardContent = ({
               Try Inferenc
             </ModalHeader>
             <ModalBody>
-              <div className="relative flex-1 flex flex-col justify-end min-h-[50vh] max-h-[calc(100vh-76px)] px-2 overflow-y-auto no-scrollbar">
-                <div className="flex-1 flex flex-col justify-end gap-y-8 p-8 mb-28">
+              <div className="relative flex flex-col min-h-[50vh] max-h-[70vh]">
+                <div className="flex-1 flex flex-col-reverse overflow-y-auto px-2 py-4 pb-20">
                   {messages.map((message, index) => (
                     <MessageItem
                       message={message}
                       key={message.id}
                       isLastItem={index === messages.length - 1}
+                      className="mb-6"
                     />
-                  ))}
+                  )).reverse()}
                 </div>
-                <div className="shrink-0">
+                <div className="sticky bottom-0 bg-background-primary py-2 border-t border-background-tertiary">
                   <MessageBox />
                 </div>
               </div>
