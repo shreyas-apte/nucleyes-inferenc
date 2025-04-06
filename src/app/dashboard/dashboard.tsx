@@ -11,7 +11,6 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import { useSession } from "next-auth/react";
 import React, { HTMLAttributes, useRef, useState } from "react";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 
@@ -37,8 +36,6 @@ export default function Dashboard({
   details: Assistant;
   onDetailsChange: (details: Assistant) => void;
 }) {
-  const { data: token } = useSession();
-  console.log({ token });
   const [dashboardConfig, setDashboardConfig] = useAtom(dashboardAtom);
 
   const isLogsBarActive = dashboardConfig.isLogsBarOpen;
