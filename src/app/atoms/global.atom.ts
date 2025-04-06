@@ -4,6 +4,6 @@ import { defaultThemeConfig } from "../constants";
 
 export const globalConfigAtom = atom<GlobalAppConfig>({
   theme: "dark",
-  activePopupsIds: ["login"], // ["login"],
+  activePopupsIds: [],
   themeConfig: defaultThemeConfig,
 });
