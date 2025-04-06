@@ -13,6 +13,10 @@ import {
 } from "@heroui/react";
 import React, { HTMLAttributes, useRef, useState, useEffect } from "react";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeHighlight from 'rehype-highlight';
 
 import Threads from "./threads";
 import LogsBar from "./logs-bar";
@@ -321,11 +325,66 @@ const MessageItem = ({
       />
       <div className="flex-1">
         <h4 className="text-base font-semibold">{message.sender.name}</h4>
-        <Linkify>
-          <p className="[&>a]:text-primary mt-0.5 text-sm font-normal whitespace-break-spaces break-word">
-            {message.text}
-          </p>
-        </Linkify>
+        {message.type === "bot" ? (
+          <div className="markdown-content mt-0.5 text-sm font-normal">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw, rehypeHighlight]}
+              components={{
+                a: ({node, ...props}) => <a className="text-primary hover:underline" {...props} />,
+                p: ({node, ...props}) => <p className="my-2" {...props} />,
+                h1: ({node, ...props}) => <h1 className="text-xl font-bold my-3" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-lg font-bold my-2" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-md font-bold my-2" {...props} />,
+                ul: ({node, ...props}) => <ul className="list-disc ml-4 my-2" {...props} />,
+                ol: ({node, ...props}) => <ol className="list-decimal ml-4 my-2" {...props} />,
+                li: ({node, ...props}) => <li className="my-1" {...props} />,
+                code: ({node, className, children, ...props}) => {
+                  const match = /language-(\w+)/.exec(className || '');
+                  return match ? (
+                    <div className="my-3 overflow-auto rounded-md bg-gray-800">
+                      <pre className={`${className} p-2 text-xs overflow-auto`}>
+                        <code className={className} {...props}>{children}</code>
+                      </pre>
+                    </div>
+                  ) : (
+                    <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-xs" {...props}>
+                      {children}
+                    </code>
+                  );
+                },
+                blockquote: ({node, ...props}) => (
+                  <blockquote className="border-l-4 border-gray-200 pl-4 italic my-2" {...props} />
+                ),
+                table: ({node, ...props}) => (
+                  <div className="overflow-auto my-4">
+                    <table className="min-w-full divide-y divide-gray-300" {...props} />
+                  </div>
+                ),
+                th: ({node, ...props}) => (
+                  <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider bg-gray-100 dark:bg-gray-700" {...props} />
+                ),
+                td: ({node, ...props}) => (
+                  <td className="px-3 py-2 text-sm" {...props} />
+                ),
+                tr: ({node, ...props}) => (
+                  <tr className="even:bg-gray-50 dark:even:bg-gray-800" {...props} />
+                ),
+                img: ({node, ...props}) => (
+                  <img className="max-w-full h-auto rounded my-2" {...props} alt={props.alt || 'Image'} />
+                ),
+              }}
+            >
+              {message.text}
+            </ReactMarkdown>
+          </div>
+        ) : (
+          <Linkify>
+            <p className="[&>a]:text-primary mt-0.5 text-sm font-normal whitespace-break-spaces break-word">
+              {message.text}
+            </p>
+          </Linkify>
+        )}
         {isLastItem && message.type === "bot" ? (
           <div className="flex items-center gap-x-4 text-grey mt-3">
             <CopyAltIcon className="w-5 h-5 shrink-0 cursor-pointer hover:text-primary" />
