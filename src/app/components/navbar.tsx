@@ -20,7 +20,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-background-primary h-[76px] flex items-center justify-between px-6 border-b-1 border-background-tertiary">
+    <nav className="bg-background-primary h-[60px] flex items-center justify-between px-6 border-b-1 border-background-tertiary">
       <div className="flex justify-between items-center gap-x-6">
         <LogoFull className="w-[112px] h-6 text-white" />
         <Divider orientation="vertical" className="h-6" />
@@ -41,9 +41,12 @@ const Navbar = () => {
             color="primary"
             showValueLabel={true}
             aria-label="Loading..."
+            classNames={{
+              value: "text-xs"
+            }}
           />
           <div className="flex flex-col justify-center items-center">
-            <small className="text-white text-opacity-60 text-[10px]">
+            <small className="text-white text-opacity-60 text-[10px] leading-none">
               Token usage
             </small>
             <p className="text-white font-bold text-xs">839K / 1M</p>
@@ -54,10 +57,16 @@ const Navbar = () => {
           variant="bordered"
           color="default"
           onClick={handleShareModal}
+          className="py-1"
         >
           Share
         </Button>
-        <Button radius="sm" variant="solid" color="primary">
+        <Button 
+          radius="sm" 
+          variant="solid" 
+          color="primary"
+          className="py-1"
+        >
           Publish
         </Button>
       </div>

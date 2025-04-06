@@ -60,7 +60,7 @@ const AssistantInfo = ({
   return (
     <div
       ref={assistantInfoRef}
-      className="bg-background-primary border-r-1 border-background-tertiary flex-shrink-0 min-w-[340px] w-1/4 px-4 py-4 h-[calc(100vh-116px)] overflow-y-auto scrollbar-thin"
+      className="bg-background-primary border-r-1 border-background-tertiary flex-shrink-0 min-w-[340px] w-1/4 px-4 py-4 h-[calc(100vh-100px)] overflow-y-auto scrollbar-thin"
     >
       <div className="pb-4 border-b-1 border-background-tertiary flex items-center justify-between gap-x-2">
         <Button

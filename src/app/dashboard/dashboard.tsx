@@ -190,7 +190,7 @@ const DashboardLayout = ({
       <section className="flex-1 flex items-stretch justify-between bg-background-secondary">
         <div className={`relative transition-all duration-300 ease-in-out ${isAssistantInfoCollapsed ? 'w-[50px]' : ''}`}>
           {isAssistantInfoCollapsed ? (
-            <div className="fixed top-[76px] h-[calc(100vh-76px)] bg-background-primary border-r border-background-tertiary w-[50px] flex flex-col items-center">
+            <div className="fixed top-[60px] h-[calc(100vh-60px)] bg-background-primary border-r border-background-tertiary w-[50px] flex flex-col items-center">
               <div className="flex justify-center w-full px-3 py-2">
                 <Button 
                   isIconOnly 
@@ -212,7 +212,7 @@ const DashboardLayout = ({
               </div>
             </div>
           ) : (
-            <div className="flex flex-col bg-background-primary min-w-[340px] w-1/4 h-[calc(100vh-76px)]">
+            <div className="flex flex-col bg-background-primary min-w-[340px] w-1/4 h-[calc(100vh-60px)]">
               <div className="flex justify-end px-3 py-2 border-r border-background-tertiary">
                 <Button 
                   isIconOnly 
@@ -257,7 +257,7 @@ const MainDashBoardContent = ({
   onMessageSubmit?: (message: string) => void;
 }) => {
   return (
-    <div className="relative flex-1 flex flex-col h-[calc(100vh-76px)] overflow-x-hidden">
+    <div className="relative flex-1 flex flex-col h-[calc(100vh-60px)] overflow-x-hidden">
       <div className="absolute top-6 w-[calc(100%-64px)] flex justify-between items-center px-8 z-10">
         <div></div>
         <div className="flex justify-end gap-x-2 items-center">
