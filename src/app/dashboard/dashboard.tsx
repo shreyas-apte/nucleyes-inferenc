@@ -41,7 +41,7 @@ export default function Dashboard({
   onDetailsChange: (details: Assistant) => void;
 }) {
   const [dashboardConfig, setDashboardConfig] = useAtom(dashboardAtom);
-  const [chatMessages, setChatMessages] = useState([...messages]);
+  const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [isAiResponding, setIsAiResponding] = useState(false);
   const [isClearChatModalOpen, setIsClearChatModalOpen] = useState(false);
 
@@ -584,7 +584,7 @@ const MessageBox = ({
           value={message}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
-          placeholder="Ask a question..."
+          placeholder="Ask Inferenc AI..."
           disabled={isDisabled}
           rows={1}
           className="flex-1 bg-transparent border-none outline-none resize-none overflow-y-auto px-3 py-2 min-h-[40px] text-sm"
@@ -614,6 +614,8 @@ const ShareModalDashboardContent = ({
   isOpen: boolean;
   onOpenChange: (value: boolean) => void;
 }) => {
+  const [modalMessages, setModalMessages] = useState<Message[]>([]);
+  
   return (
     <Modal size="5xl" isOpen={isOpen} onClose={() => onOpenChange(false)}>
       <ModalContent>
@@ -625,11 +627,11 @@ const ShareModalDashboardContent = ({
             <ModalBody>
               <div className="relative flex flex-col min-h-[50vh] max-h-[70vh]">
                 <div className="flex-1 flex flex-col-reverse overflow-y-auto px-2 py-4 pb-20">
-                  {messages.map((message, index) => (
+                  {modalMessages.map((message, index) => (
                     <MessageItem
                       message={message}
                       key={message.id}
-                      isLastItem={index === messages.length - 1}
+                      isLastItem={index === modalMessages.length - 1}
                       className="mb-6"
                     />
                   )).reverse()}
